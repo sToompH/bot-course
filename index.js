@@ -1,5 +1,5 @@
 const TelegramApi = require('node-telegram-bot-api')
-const {gameOptions, againOptions} = require('./options.js')
+const {gameOptions, againOptions} = require('./options')
 const token = '5662862549:AAFPKPmwdI3kQ8tslVcphv56ZRKmb_932ew'
 
 const bot = new TelegramApi(token, {polling: true})
@@ -27,23 +27,30 @@ const start = () => {
     const text = msg.text;
     const chatId = msg.chat.id;
   
-    if (text === '/start') {
-      await bot.sendSticker(chatId,'https://tlgrm.ru/_/stickers/ccd/a8d/ccda8d5d-d492-4393-8bb7-e33f77c24907/1.webp');
-      return bot.sendMessage(chatId,`Welcome to the TG bot`);
+    try {
+      if (text === '/start') {
+        await UserModel.create({chatId});
+        await bot.sendSticker(chatId,'https://tlgrm.ru/_/stickers/ccd/a8d/ccda8d5d-d492-4393-8bb7-e33f77c24907/1.webp');
+        return bot.sendMessage(chatId,`Welcome to the TG bot`);
+      }
+      if (text === '/info') {
+        return bot.sendMessage(chatId, `You name ${msg.from.first_name} ${msg.from.last_name} `);
+      }
+      if (text === '/game') {
+        return startGame(chatId);
+      }
+      return bot.sendMessage(chatId,'Я тебя не понимаю');
+    } catch (e) {
+      return bot.sendMessage(chatId, `Error`);
     }
-    if (text === '/info') {
-      return bot.sendMessage(chatId, `You name ${msg.from.first_name} ${msg.from.last_name} `);
-    }
-    if (text === '/game') {
-      return startGame(chatId);
-    }
-    return bot.sendMessage(chatId,'Я тебя не понимаю');
+
+    
   })
   
   bot.on('callback_query',async msg => {
     const data = msg.data;
     const chatId = msg.message.chat.id;
-    if (data === '/again') {
+    if (data == '/again') {
       return startGame(chatId)
     }
     if (data === chats[chatId]) {
